@@ -1,0 +1,60 @@
+﻿
+@{
+    ViewData["Title"] = "Home";
+}
+    
+@using MyLearning.Models
+@using Oracle.ManagedDataAccess.Client
+@using Oracle.ManagedDataAccess;
+
+@{
+    bool isConnected = false;
+    string connectionStatusMessage = "";
+    string databaseName = "";
+    string userName = "";
+    string dataSource = "";
+
+    try
+    {
+        using (OracleConnection connection = DatabaseContext.GetOpenConnection())
+        {
+            if (connection.State == System.Data.ConnectionState.Open)
+            {
+                isConnected = true;
+                connectionStatusMessage = "Connected to the database.";
+                databaseName = connection.Database;
+                userName = new OracleConnectionStringBuilder(connection.ConnectionString).UserID;
+                dataSource = connection.DataSource;
+            }
+            else
+            {
+                connectionStatusMessage = "Database connection state is not open.";
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        connectionStatusMessage = "Error connecting to the database: " + ex.Message;
+    }
+}
+
+<div class="row">
+
+    @if (isConnected)
+    {
+        <div class="alert alert-success status-message" role="alert">
+            @connectionStatusMessage
+            <br />
+
+            User Name: @userName
+            <br />
+            Data Source: @dataSource
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-danger status-message" role="alert">
+            @connectionStatusMessage
+        </div>
+    }
+</div>
